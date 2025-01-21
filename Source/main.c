@@ -3,12 +3,14 @@
  * @author	 HS6502
  * @date 	 28-Dec-2024
  * @version  V1.1
- * @brief    Cheap and High Quality Digital Inductance Meter with STM8 Microcontroller
+ * @brief    Cheap and High Quality Digital Inductance Meter with STM8S003F3 Microcontroller
  */	/* File Create Date : 15-July-2024 */
 
 #include "stm8s.h"
 #include "7segment.c"
-		
+
+//#define STM8S003F3				/* Comment this Line for Using STM8S003K3 */
+
 #undef  EEPROM									/* unDefine the EEPROM word in File stm8s.h */
 #define EEPROM(ByteAddress) 	 (*(volatile uint8_t*)(ByteAddress))
 #define CAP0    0.0000000047f    				/* Default C3 Capacitor Value : 4.7nF */ 
@@ -29,16 +31,16 @@ volatile float L0 = 0.0001;						/* on Board L1 Value */
 volatile float Lx ;
 
 void GPIO_Config (void){
-	GPIOA->DDR = 0x08;		/* PortA Pin3 as Output */
-	GPIOB->DDR = 0x30;		/* PortB Pin4 and 5 as Output */
-	GPIOC->DDR = 0x9F;		/* PortC Pin5 and 6 as Input, other Pins Output */
-	GPIOD->DDR = 0xFF;  	/* PortD Pin1 to 6 as Output*/
-	GPIOA->CR1 = 0x08;		/* PortA Pin3 as PushPull */
-	GPIOB->CR1 = 0x30;		/* PortB Pin4 and 5 as PushPull*/
-	GPIOC->CR1 = 0xFF;		/* PortC Pin 5 and 6 Pullup Enable, Other Pins PushPull */
-	GPIOD->CR1 = 0xFF;		/* PortD All Pins as PushPull */
-	EXTI->CR1  = 0x20;		/* PortC Interrupts only Falling Edge */
-	GPIOC->CR2 = 0x20;		/* PortC Pin 5 (Button Pin) Interrupt Enable */	
+	GPIOA->DDR = 0x08;				/* PortA Pin3 as Output */
+	GPIOB->DDR = 0x30;				/* PortB Pin4 and 5 as Output */
+	GPIOC->DDR = 0x9D;				/* PortC Pin1,5,6 as Input, other Pins Output */
+	GPIOD->DDR = 0xFF;  			/* PortD Pin1 to 6 as Output*/
+	GPIOA->CR1 = 0x08;				/* PortA Pin3 as PushPull */
+	GPIOB->CR1 = 0x30;				/* PortB Pin4 and 5 as PushPull*/
+	GPIOC->CR1 = 0xFF;				/* PortC Pin1,5,6 Pullup Enable, Output Pins PushPull */
+	GPIOD->CR1 = 0xFF;				/* PortD All Pins as PushPull */
+	EXTI->CR1  = 0x20;				/* PortC Interrupts only Falling Edge */
+	GPIOC->CR2 = 0x20;				/* PortC Pin 5 (Button Pin) Interrupt Enable */	
 }
 
 void Clock_Begin (void){
@@ -50,7 +52,7 @@ void Clock_Begin (void){
 		CLK->SWCR &= 0xF7;			/* Clear SWIF Flag */			
 		CLK->SWCR |= 0x02;			/* Switch Master Clock to Crystal */
 	}
-	else{
+	else{							/* if External Clock UnAvailable, Switch Back to HSI */
 		CLK->SWR = 0xE1;
 		CLK->ECKR = 0x00;
 	}
@@ -66,15 +68,17 @@ void EEPROM_Load_Saved (void){
 	L0 = (float) 1 / ((39.4784f * CAP0) * (Default_Freq * Default_Freq) );
 }
 
+#if		defined(STM8S003F3)
 /* ReMap the Timer1 Channel 1 to Port C6 */
 void Alternate_Function_1 (void){
 	if((*AFR & 0x01) == 0){
-		FLASH->CR2 = 0x80;			/* Enable Write Access to Option Bits */
-		FLASH->NCR2 = 0x7F;			/* Enable Write Access to Option Bits */
-		*AFR = 0x01;				/* Write 1 to AFR0 Bit */
-		*NAFR = 0xFE;				/* Write 0 to NAFR0 Bit */
+		FLASH->CR2 = 0x80;			// Enable Write Access to Option Bits 
+		FLASH->NCR2 = 0x7F;			// Enable Write Access to Option Bits 
+		*AFR = 0x01;				// Write 1 to AFR0 Bit 
+		*NAFR = 0xFE;				// Write 0 to NAFR0 Bit 
 	}
 }
+#endif
 
 void Timer1_PulseCounter_Begin (void){
 	TIM1->IER = 0x01;				/* Enable Update (Overflow) Interrupt */	
@@ -88,8 +92,8 @@ void Timer1_PulseCounter_Begin (void){
 
 void Timer2_Delay_Begin (void){
 	TIM2->IER  = 0x01;				/* Enable Update (Overflow) Interrupt */
-	TIM2->ARRH = 0x51;	/* Set AutoReload Value MSB */
-	TIM2->ARRL = 0x61;	/* Set AutoReload Value LSB */
+	TIM2->ARRH = 0x51;				/* Set AutoReload Value MSB */
+	TIM2->ARRL = 0x61;				/* Set AutoReload Value LSB */
 	TIM2->PSCR = 0x08;				/* Set Prescaler Value to 256 */
 	TIM2->EGR  = 0x01;				/* Generate Update Event for Take Prescaler Value */
 }
@@ -123,7 +127,7 @@ void Measure_Inductance (void){
 			TIM2->ARRL = 0x61;
 			Repeat = 0;
 		}
-	}	//lx here
+	}						//lx here
 }
 
 /* Convert Float Value to Integer for Display to 7segment */
@@ -178,7 +182,7 @@ void Update_Values (float Value){
         Dot_Number = 0;
 		Symbol = 'H';
     }
-	if(Value >= 1000.0f){			/* Display "OL" on 7segment */ 
+	if(Value >= 1000.0f){				/* Display "OL" on 7segment */ 
 		Dot_Number = 0;
 		Buffer[0] = SPC;
 		Buffer[1] = 0;
@@ -194,14 +198,14 @@ void Update_Values (float Value){
 }
 
 void TIM1_Overflow (void)__interrupt(11){
-	Overflow_Count ++ ;						/* Increase Number of Overflow Count */ 
-	TIM1->SR1 = 0x00;						/* Clear Update Flag */ 
+	Overflow_Count ++ ;					/* Increase Number of Overflow Count */ 
+	TIM1->SR1 = 0x00;					/* Clear Update Flag */ 
 }
 
 void TIM2_Overflow (void)__interrupt(13){
 	Get_Frequency();
 	Measure_Inductance();
-	TIM2->SR1 = 0x00;						/* Clear Update Flag */
+	TIM2->SR1 = 0x00;				/* Clear Update Flag */
 }
 
 void EEPROM_Save (uint32_t S_Value){
@@ -231,7 +235,9 @@ void main (void){
 	Clock_Begin();
 	Boot_Logo();
 	EEPROM_Load_Saved();
+#if	defined(STM8S003F3)
 	Alternate_Function_1();
+#endif
 	Timer1_PulseCounter_Begin();
 	Timer2_Delay_Begin();
 	enableInterrupts();	
