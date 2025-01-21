@@ -1,15 +1,15 @@
 /**
  * @file	 main.c
  * @author	 HS6502
- * @date 	 28-Dec-2024
+ * @date 	 21-Jan-2025		// File Create Date : 15-July-2024 
  * @version  V1.1
  * @brief    Cheap and High Quality Digital Inductance Meter with STM8S003F3 Microcontroller
- */	/* File Create Date : 15-July-2024 */
+ */	
 
 #include "stm8s.h"
 #include "7segment.c"
 
-//#define STM8S003F3				/* Comment this Line for Using STM8S003K3 */
+#define STM8S003F3				/* Comment this Line for Using STM8S003K3 */
 
 #undef  EEPROM									/* unDefine the EEPROM word in File stm8s.h */
 #define EEPROM(ByteAddress) 	 (*(volatile uint8_t*)(ByteAddress))
