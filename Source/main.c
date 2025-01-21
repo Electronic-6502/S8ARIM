@@ -2,7 +2,7 @@
  * @file	 main.c
  * @author	 HS6502
  * @date 	 21-Jan-2025		// File Create Date : 15-July-2024 
- * @version  V1.1
+ * @version  V1.2
  * @brief    Cheap and High Quality Digital Inductance Meter with STM8S003F3 Microcontroller
  */	
 
@@ -25,9 +25,9 @@ volatile uint8_t Overflow_Count, SampleNum = 3, Repeat = 0;
 uint16_t d;
 volatile uint16_t Pulse_Count;
 volatile uint32_t EEP_Temp;
-volatile float Default_Freq = 123456;			/* Default Frequency when Lx is Shorted */
+volatile float Default_Freq = 123456;			/* Default Frequency when Lx Probe is Shorted */
 volatile float Frequency;
-volatile float L0 = 0.0001;						/* on Board L1 Value */
+volatile float L0 ;						/* on Board L1 Value */
 volatile float Lx ;
 
 void GPIO_Config (void){
