@@ -17,9 +17,9 @@ STM8 based AutoRange Inductance Meter Project
 # Program the MCU on PCB
   the "J3" Connector is used for Program MCU (STM8S003F3) with ST-LINK Programmer and SWIM Protocol.
 ## J3 Pin Description :
-  Pin 1 : GND
-  Pin 2 : SWIM
-  Pin 3 : RESET (RST)
+  Pin 1 : GND   
+  Pin 2 : SWIM  
+  Pin 3 : RESET (RST)   
 ## Note :
   Your need Connect Power Supply to J1 for Programming. 
 
