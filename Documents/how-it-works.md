@@ -31,5 +31,6 @@ These are implemented in the `Measure_Inductance` function.
 
 # Acknowledgement
 
-Special thanks from `epsi1on` Because Translate and Create this Document
+Special thanks from `epsi1on` Because Translate and Create this Document    
+
 Github : `github.com\epsi1on`
