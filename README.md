@@ -1,6 +1,12 @@
 # S8ARIM
 STM8 based AutoRange Inductance Meter Project
 
+# Images
+
+![Alt text](Hardware/3D_View/S8ARIM_3D_Bottom.PNG?raw=true "Title")
+
+![Alt text](Hardware/3D_View/S8ARIM_3D_Top.PNG?raw=true "Title")
+
 # Advantages :
 - Fine and High Precision
 - Small Size
