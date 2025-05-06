@@ -23,8 +23,14 @@ And after each time the circuit is turned on, with above formula the `L1` be cal
 
 No we have precise value of `L1`, and it is time to calculate the value of inductor under measurement. for one could use this formulation:
 
-$L_x=\frac{f1^2}{fx^2}-1*L1$
+$L_x=(\frac{f1^2}{fx^2}-1)*L1$
 
 In above formula, `f1` is the same frequency which is stored in the EEPROM. `fx` is also the frequency of resonator that is currently under measure. And `L1` is from last formula.
 
 These are implemented in the `Measure_Inductance` function.
+
+# Acknowledgement
+
+Special thanks from `epsi1on` Because Translate and Create this Document    
+
+Github : `github.com\epsi1on`
